@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="css/styles.css">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- CountUp.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/countup.js/2.0.7/countUp.umd.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <header class="main-header">
@@ -28,9 +32,62 @@
             <button class="cta-button">Find Nearby Cleanups</button>
         </section>
 
+        <section class="stats-section">
+            <div class="stats-container">
+                <div class="stat-box">
+                    <h3 class="stat-number" id="pounds-collected">2,500</h3>
+                    <p class="stat-label">KG Collected</p>
+                </div>
+                <div class="stat-box">
+                    <h3 class="stat-number" id="beaches-cleaned">15</h3>
+                    <p class="stat-label">Beaches Cleaned</p>
+                </div>
+                <div class="stat-box">
+                    <h3 class="stat-number" id="squad-members">350</h3>
+                    <p class="stat-label">Squad Members</p>
+                </div>
+            </div>
+        </section>
+
         <section id="map" class="map-section">
             <h2>Beach Cleanup Map</h2>
             <div id="cleanup-map"></div>
+        </section>
+
+        <section id="upcoming" class="upcoming-section">
+            <h2>Upcoming Cleanups</h2>
+            <div class="cleanup-grid">
+                <div class="cleanup-card">
+                    <div class="cleanup-date">June 15, 2025</div>
+                    <h3>East Coast Beach Warrior</h3>
+                    <p class="cleanup-location">East Coast Park Area C</p>
+                    <p class="cleanup-time">9:00 AM - 12:00 PM</p>
+                    <div class="cleanup-stats">
+                        <span class="members-count">24 members joined</span>
+                    </div>
+                    <button class="join-squad-btn">Join Squad</button>
+                </div>
+                <div class="cleanup-card">
+                    <div class="cleanup-date">June 22, 2025</div>
+                    <h3>Sentosa Coastal Heroes</h3>
+                    <p class="cleanup-location">Siloso Beach</p>
+                    <p class="cleanup-time">8:30 AM - 11:30 AM</p>
+                    <div class="cleanup-stats">
+                        <span class="members-count">18 members joined</span>
+                    </div>
+                    <button class="join-squad-btn">Join Squad</button>
+                </div>
+                <div class="cleanup-card">
+                    <div class="cleanup-date">June 29, 2025</div>
+                    <h3>Punggol Point Warriors</h3>
+                    <p class="cleanup-location">Punggol Beach</p>
+                    <p class="cleanup-time">4:00 PM - 6:00 PM</p>
+                    <div class="cleanup-stats">
+                        <span class="members-count">12 members joined</span>
+                    </div>
+                    <button class="join-squad-btn">Join Squad</button>
+                </div>
+            </div>
         </section>
 
         <section id="weather" class="weather-section">

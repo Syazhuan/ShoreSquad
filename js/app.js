@@ -11,7 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initMap() {
     // Initialize the map centered on Pasir Ris (next cleanup location)
-    map = L.map('cleanup-map').setView([1.381497, 103.955574], 13);
+    const pasirRisLat = 1.381497;
+    const pasirRisLng = 103.955574;
+    
+    map = L.map('cleanup-map').setView([pasirRisLat, pasirRisLng], 13);
     
     // Add OpenStreetMap tiles with a more modern style
     L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
@@ -20,6 +23,9 @@ function initMap() {
 
     // Add cleanup locations
     addCleanupLocations();
+    
+    // Update weather for Pasir Ris location
+    fetchWeather(pasirRisLat, pasirRisLng);
 }
 
 function addCleanupLocations() {
@@ -125,6 +131,7 @@ function checkGeolocation() {
                 map.setView([latitude, longitude], 12);
                 addUserMarker(latitude, longitude);
                 fetchNearbyBeaches(latitude, longitude);
+                fetchWeather(latitude, longitude);
             },
             error => {
                 console.warn("Error getting location:", error);
@@ -225,4 +232,32 @@ function initializeStatistics() {
 
     // Observe all stat boxes
     document.querySelectorAll('.stat-box').forEach(box => observer.observe(box));
+}
+
+async function fetchWeather(lat, lng) {
+    // This would typically fetch from a weather API
+    // For demo purposes, we'll show sample weather data
+    const weatherInfo = document.getElementById('weather-info');
+    if (weatherInfo) {
+        const sampleWeather = {
+            temperature: 29, // Celsius
+            condition: 'Partly Cloudy',
+            humidity: 75,
+            windSpeed: 12 // km/h
+        };
+
+        weatherInfo.innerHTML = `
+            <div class="weather-container">
+                <div class="weather-card">
+                    <h3>Current Beach Weather</h3>
+                    <div class="weather-details">
+                        <p><i class="fas fa-thermometer-half"></i> ${sampleWeather.temperature}°C</p>
+                        <p><i class="fas fa-cloud"></i> ${sampleWeather.condition}</p>
+                        <p><i class="fas fa-tint"></i> Humidity: ${sampleWeather.humidity}%</p>
+                        <p><i class="fas fa-wind"></i> Wind: ${sampleWeather.windSpeed} km/h</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
 }

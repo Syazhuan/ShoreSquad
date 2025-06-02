@@ -5,29 +5,106 @@ let markers = [];
 document.addEventListener('DOMContentLoaded', () => {
     initMap();
     setupEventListeners();
-    checkGeolocation();
     setupJoinButtons();
     initializeStatistics();
 });
 
 function initMap() {
-    // Initialize the map centered on Singapore
-    map = L.map('cleanup-map').setView([1.3521, 103.8198], 12);
+    // Initialize the map centered on Pasir Ris (next cleanup location)
+    map = L.map('cleanup-map').setView([1.381497, 103.955574], 13);
     
     // Add OpenStreetMap tiles with a more modern style
     L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Custom marker icon
-    const cleanupIcon = L.divIcon({
-        html: '<div class="cleanup-marker"><i class="fas fa-broom"></i></div>',
-        className: 'cleanup-marker-container',
-        iconSize: [40, 40]
-    });
+    // Add cleanup locations
+    addCleanupLocations();
+}
 
-    // Add markers for Singapore cleanup locations
-    addCleanupLocations(cleanupIcon);
+function addCleanupLocations() {
+    const locations = [
+        {
+            name: "Pasir Ris Beach Squad",
+            lat: 1.381497,
+            lng: 103.955574,
+            date: "July 6, 2025",
+            time: "7:30 AM - 10:30 AM",
+            members: 15,
+            description: "Next Cleanup Event! Early morning cleanup followed by breakfast",
+            isNext: true
+        },
+        {
+            name: "East Coast Beach Warrior",
+            lat: 1.3003,
+            lng: 103.9177,
+            date: "June 15, 2025",
+            time: "9:00 AM - 12:00 PM",
+            members: 24,
+            description: "Join us at East Coast Park for our biggest cleanup yet!"
+        },
+        {
+            name: "Sentosa Coastal Heroes",
+            lat: 1.2494,
+            lng: 103.8303,
+            date: "June 22, 2025",
+            time: "8:30 AM - 11:30 AM",
+            members: 18,
+            description: "Help keep Sentosa's beaches pristine"
+        },
+        {
+            name: "Punggol Point Warriors",
+            lat: 1.4186,
+            lng: 103.9069,
+            date: "June 29, 2025",
+            time: "4:00 PM - 6:00 PM",
+            members: 12,
+            description: "Evening cleanup with amazing sunset views"
+        }
+    ];
+
+    locations.forEach(location => {
+        const icon = location.isNext ? 
+            L.divIcon({
+                className: 'cleanup-marker next-cleanup-marker',
+                html: '<i class="fas fa-star"></i>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            }) :
+            L.divIcon({
+                className: 'cleanup-marker',
+                html: '<i class="fas fa-map-marker-alt"></i>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 30]
+            });
+
+        const marker = L.marker([location.lat, location.lng], {
+            title: location.name,
+            icon: icon
+        })
+        .bindPopup(`
+            <div class="popup-content ${location.isNext ? 'next-cleanup-popup' : ''}">
+                ${location.isNext ? '<h3>⭐ Next Cleanup Event ⭐</h3>' : ''}
+                <h4>${location.name}</h4>
+                <p><i class="far fa-calendar-alt"></i> ${location.date}</p>
+                <p><i class="far fa-clock"></i> ${location.time}</p>
+                <p><i class="fas fa-user-friends"></i> ${location.members} members joined</p>
+                <p>${location.description}</p>
+                <button onclick="joinCleanup('${location.name}')" class="popup-join-btn">Join Squad</button>
+            </div>
+        `, {
+            className: location.isNext ? 'next-cleanup-popup-container' : 'cleanup-popup'
+        });
+
+        // Auto-open the next cleanup popup
+        if (location.isNext) {
+            marker.addTo(map).openPopup();
+        } else {
+            marker.addTo(map);
+        }
+        
+        markers.push(marker);
+    });
 }
 
 function setupEventListeners() {
@@ -148,71 +225,4 @@ function initializeStatistics() {
 
     // Observe all stat boxes
     document.querySelectorAll('.stat-box').forEach(box => observer.observe(box));
-}
-
-function addCleanupLocations(icon) {
-    const sampleLocations = [
-        {
-            name: "East Coast Beach Warrior",
-            lat: 1.3003,
-            lng: 103.9177,
-            date: "June 15, 2025",
-            time: "9:00 AM",
-            members: 24,
-            description: "Join us at East Coast Park for our biggest cleanup yet!"
-        },
-        {
-            name: "Sentosa Coastal Heroes",
-            lat: 1.2494,
-            lng: 103.8303,
-            date: "June 22, 2025",
-            time: "8:30 AM",
-            members: 18,
-            description: "Help keep Sentosa's beaches pristine"
-        },
-        {
-            name: "Punggol Point Warriors",
-            lat: 1.4186,
-            lng: 103.9069,
-            date: "June 29, 2025",
-            time: "4:00 PM",
-            members: 12,
-            description: "Evening cleanup with amazing sunset views"
-        },
-        {
-            name: "Pasir Ris Beach Squad",
-            lat: 1.3721,
-            lng: 103.9490,
-            date: "July 6, 2025",
-            time: "7:30 AM",
-            members: 15,
-            description: "Early morning cleanup followed by breakfast"
-        }
-    ];
-
-    sampleLocations.forEach(location => {
-        const marker = L.marker([location.lat, location.lng], {
-            title: location.name,
-            icon: icon
-        })
-        .bindPopup(`
-            <div class="popup-content">
-                <h3>${location.name}</h3>
-                <p class="popup-date">${location.date} at ${location.time}</p>
-                <p class="popup-description">${location.description}</p>
-                <p class="popup-members">${location.members} members joined</p>
-                <button onclick="joinCleanup('${location.name}')" class="popup-join-btn">Join Squad</button>
-            </div>
-        `, {
-            className: 'cleanup-popup'
-        })
-        .addTo(map);
-        
-        markers.push(marker);
-    });
-}
-
-// Weather functionality to be implemented
-async function fetchWeather(lat, lng) {
-    // TODO: Integrate with a weather API
 }

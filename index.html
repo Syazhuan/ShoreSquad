@@ -16,11 +16,10 @@
 <body>
     <header class="main-header">
         <nav class="nav-container">
-            <div class="logo">ShoreSquad</div>
-            <ul class="nav-menu">
+            <div class="logo">ShoreSquad</div>            <ul class="nav-menu">
                 <li><a href="#map">Find Cleanups</a></li>
                 <li><a href="#weather">Weather</a></li>
-                <li><a href="#join">Join Squad</a></li>
+                <li><a href="#my-squad">My Squad</a></li>
             </ul>
         </nav>
     </header>
@@ -102,6 +101,19 @@
                 <div id="current-weather" class="current-weather"></div>
                 <div id="weather-forecast" class="weather-forecast">
                     <div class="forecast-grid"></div>
+                </div>
+            </div>        </section>
+
+        <section id="my-squad" class="my-squad-section">
+            <h2>My Squad Events</h2>
+            <div class="my-events-container">
+                <div id="joined-events" class="joined-events">
+                    <!-- Events will be populated here -->
+                </div>
+                <div class="no-events-message" id="no-events-message">
+                    <i class="fas fa-wave-square"></i>
+                    <p>You haven't joined any cleanup events yet.</p>
+                    <p>Find an upcoming cleanup and join the squad!</p>
                 </div>
             </div>
         </section>

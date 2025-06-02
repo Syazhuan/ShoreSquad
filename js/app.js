@@ -2,11 +2,15 @@
 let map;
 let markers = [];
 
+// Store joined events in localStorage
+let joinedEvents = JSON.parse(localStorage.getItem('joinedEvents')) || [];
+
 document.addEventListener('DOMContentLoaded', () => {
     initMap();
     setupEventListeners();
     setupJoinButtons();
     initializeStatistics();
+    updateMySquadSection();
 });
 
 function initMap() {
@@ -171,8 +175,119 @@ async function fetchNearbyBeaches(lat, lng) {    // This would typically fetch f
 }
 
 function joinCleanup(locationName) {
-    // This would typically integrate with a backend
-    alert(`Thanks for joining the cleanup at ${locationName}! We'll send you the details soon.`);
+    const allLocations = [
+        {
+            name: "Pasir Ris Beach Squad",
+            date: "July 6, 2025",
+            time: "7:30 AM - 10:30 AM",
+            location: "Pasir Ris Beach",
+            members: 15
+        }
+    ];
+
+    const event = allLocations.find(loc => loc.name === locationName);
+    if (event) {
+        const eventData = {
+            ...event,
+            joinedDate: new Date().toISOString()
+        };
+
+        if (!joinedEvents.some(e => e.name === locationName)) {
+            joinedEvents.push(eventData);
+            localStorage.setItem('joinedEvents', JSON.stringify(joinedEvents));
+            updateMySquadSection();
+            alert(`Thanks for joining the cleanup at ${locationName}! You can find the event details in My Squad section.`);
+        } else {
+            alert('You have already joined this cleanup event!');
+        }
+    }
+}
+
+function updateMySquadSection() {
+    const joinedEventsContainer = document.getElementById('joined-events');
+    const noEventsMessage = document.getElementById('no-events-message');
+
+    if (!joinedEventsContainer || !noEventsMessage) return;
+
+    if (joinedEvents.length === 0) {
+        joinedEventsContainer.style.display = 'none';
+        noEventsMessage.style.display = 'block';
+        return;
+    }
+
+    noEventsMessage.style.display = 'none';
+    joinedEventsContainer.style.display = 'grid';
+
+    // Sort events by date
+    const sortedEvents = [...joinedEvents].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    joinedEventsContainer.innerHTML = sortedEvents.map(event => {
+        const eventDate = new Date(event.date);
+        const isPast = eventDate < new Date();
+        const status = isPast ? 'Completed' : 'Upcoming';
+        const statusColor = isPast ? '#666' : 'var(--color-eco)';
+
+        return `
+            <div class="joined-event-card">
+                <span class="event-status" style="background-color: ${statusColor}">${status}</span>
+                <h3 class="event-title">${event.name}</h3>
+                <p class="event-info">
+                    <i class="far fa-calendar-alt"></i> ${event.date}
+                </p>
+                <p class="event-info">
+                    <i class="far fa-clock"></i> ${event.time}
+                </p>
+                <p class="event-info">
+                    <i class="fas fa-map-marker-alt"></i> ${event.location}
+                </p>
+                <p class="event-info">
+                    <i class="fas fa-users"></i> ${event.members} members
+                </p>
+                <div class="event-actions">
+                    <button onclick="shareEvent('${event.name}')" class="event-action-btn share-event">
+                        <i class="fas fa-share-alt"></i> Share
+                    </button>
+                    ${!isPast ? `
+                        <button onclick="leaveEvent('${event.name}')" class="event-action-btn leave-event">
+                            <i class="fas fa-sign-out-alt"></i> Leave
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function shareEvent(eventName) {
+    const event = joinedEvents.find(e => e.name === eventName);
+    if (event) {
+        const text = `Join me at ${event.name} on ${event.date} at ${event.location}! Let's clean our beaches together! 🌊 #ShoreSquad`;
+        if (navigator.share) {
+            navigator.share({
+                title: 'Join ShoreSquad Beach Cleanup',
+                text: text,
+                url: window.location.href
+            }).catch(console.error);
+        } else {
+            alert('Share this event:\n\n' + text);
+        }
+    }
+}
+
+function leaveEvent(eventName) {
+    if (confirm('Are you sure you want to leave this cleanup event?')) {
+        joinedEvents = joinedEvents.filter(e => e.name !== eventName);
+        localStorage.setItem('joinedEvents', JSON.stringify(joinedEvents));
+        updateMySquadSection();
+        
+        // Update the join button if it exists
+        const button = document.querySelector(`button[onclick="joinCleanup('${eventName}')"]`);
+        if (button) {
+            button.disabled = false;
+            button.textContent = 'Join Squad';
+            button.style.backgroundColor = 'var(--color-primary)';
+        }
+    }
 }
 
 function setupJoinButtons() {

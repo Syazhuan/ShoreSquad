@@ -299,16 +299,72 @@ body {
 }
 
 .weather-container {
-    max-width: 400px;
+    max-width: 1000px;
     margin: 0 auto;
+    padding: 1rem;
 }
 
-.weather-card {
+.current-weather {
+    background: var(--color-background);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.weather-forecast {
+    margin-top: 2rem;
+}
+
+.forecast-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.forecast-card {
     background: var(--color-background);
     border-radius: var(--border-radius);
     padding: 1.5rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.forecast-card:hover {
+    transform: translateY(-5px);
+}
+
+.forecast-date {
+    color: var(--color-primary);
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.forecast-icon {
+    font-size: 2rem;
+    color: var(--color-accent);
+    margin: 1rem 0;
+}
+
+.forecast-temp {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0.5rem 0;
+}
+
+.forecast-details {
+    color: var(--color-text);
+    margin-top: 1rem;
+}
+
+.weather-loading {
+    text-align: center;
+    padding: 2rem;
+    color: var(--color-text);
 }
 
 .weather-card h3 {

@@ -235,29 +235,86 @@ function initializeStatistics() {
 }
 
 async function fetchWeather(lat, lng) {
-    // This would typically fetch from a weather API
-    // For demo purposes, we'll show sample weather data
-    const weatherInfo = document.getElementById('weather-info');
-    if (weatherInfo) {
-        const sampleWeather = {
-            temperature: 29, // Celsius
-            condition: 'Partly Cloudy',
-            humidity: 75,
-            windSpeed: 12 // km/h
-        };
+    const currentWeather = document.getElementById('current-weather');
+    const forecastGrid = document.querySelector('.forecast-grid');
+    
+    if (!currentWeather || !forecastGrid) return;
 
-        weatherInfo.innerHTML = `
-            <div class="weather-container">
-                <div class="weather-card">
-                    <h3>Current Beach Weather</h3>
-                    <div class="weather-details">
-                        <p><i class="fas fa-thermometer-half"></i> ${sampleWeather.temperature}°C</p>
-                        <p><i class="fas fa-cloud"></i> ${sampleWeather.condition}</p>
-                        <p><i class="fas fa-tint"></i> Humidity: ${sampleWeather.humidity}%</p>
-                        <p><i class="fas fa-wind"></i> Wind: ${sampleWeather.windSpeed} km/h</p>
-                    </div>
-                </div>
+    // Show loading state
+    currentWeather.innerHTML = '<div class="weather-loading">Loading weather data...</div>';
+    forecastGrid.innerHTML = '';
+
+    try {
+        // Fetch current weather from data.gov.sg
+        const currentDate = new Date().toISOString().split('T')[0];
+        const currentResponse = await fetch(`https://api.data.gov.sg/v1/environment/air-temperature?date=${currentDate}`);
+        const currentData = await currentResponse.json();
+        
+        // Fetch 4-day forecast from data.gov.sg
+        const forecastResponse = await fetch('https://api.data.gov.sg/v1/environment/4-day-weather-forecast');
+        const forecastData = await forecastResponse.json();
+
+        // Get current temperature (using East Coast area station if available)
+        const latestReading = currentData.items[currentData.items.length - 1];
+        const temperature = latestReading.readings.find(r => r.station_id === 'S24')?.value || 
+                          latestReading.readings[0]?.value || 29;
+
+        // Display current weather
+        currentWeather.innerHTML = `
+            <h3>Current Weather at ${new Date().toLocaleTimeString()}</h3>
+            <div class="weather-details">
+                <p><i class="fas fa-thermometer-half"></i> ${temperature.toFixed(1)}°C</p>
+                <p><i class="fas fa-cloud"></i> ${forecastData.items[0].forecasts[0].forecast}</p>
             </div>
         `;
+
+        // Display 4-day forecast
+        const forecasts = forecastData.items[0].forecasts;
+        forecastGrid.innerHTML = forecasts.map(forecast => {
+            const date = new Date(forecast.date);
+            const formattedDate = date.toLocaleDateString('en-SG', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+            
+            // Choose weather icon based on forecast
+            const weatherIcon = getWeatherIcon(forecast.forecast.toLowerCase());
+
+            return `
+                <div class="forecast-card">
+                    <div class="forecast-date">${formattedDate}</div>
+                    <div class="forecast-icon">
+                        <i class="${weatherIcon}"></i>
+                    </div>
+                    <div class="forecast-temp">
+                        ${forecast.temperature.low}°C - ${forecast.temperature.high}°C
+                    </div>
+                    <div class="forecast-details">
+                        <p>${forecast.forecast}</p>
+                        <p><i class="fas fa-tint"></i> Relative Humidity: ${forecast.relative_humidity.low}% - ${forecast.relative_humidity.high}%</p>
+                        <p><i class="fas fa-wind"></i> Wind: ${forecast.wind.speed.low} - ${forecast.wind.speed.high} km/h</p>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+    } catch (error) {
+        console.error('Error fetching weather:', error);
+        currentWeather.innerHTML = '<div class="weather-error">Unable to load weather data</div>';
+    }
+}
+
+function getWeatherIcon(forecast) {
+    if (forecast.includes('thundery') || forecast.includes('thunder')) {
+        return 'fas fa-bolt';
+    } else if (forecast.includes('rain') || forecast.includes('showers')) {
+        return 'fas fa-cloud-rain';
+    } else if (forecast.includes('cloudy')) {
+        return 'fas fa-cloud';
+    } else if (forecast.includes('fair') || forecast.includes('sunny')) {
+        return 'fas fa-sun';
+    } else {
+        return 'fas fa-cloud-sun';
     }
 }
